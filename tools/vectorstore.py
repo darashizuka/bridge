@@ -4,7 +4,7 @@ Stores all concepts extracted from the lecture notes.
 Used by GapDetectNode to check if a concept is explained.
 """
 import chromadb
-from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
+from chromadb.utils.embedding_functions import FastEmbedEmbeddingFunction
 
 _client = None
 _collection = None
@@ -17,7 +17,7 @@ def get_collection(session_id: str = "default"):
     if _client is None:
         _client = chromadb.Client()  # In-memory for session
 
-    ef = SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
+    ef = FastEmbedEmbeddingFunction(model_name="BAAI/bge-small-en-v1.5")
 
     _collection = _client.get_or_create_collection(
         name=f"lecture_{session_id}",

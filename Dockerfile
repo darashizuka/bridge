@@ -17,14 +17,22 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Expose Gradio port
-EXPOSE 7860
+# Set environment variables for Hugging Face
+ENV HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH \
+    PYTHONUNBUFFERED=1 \
+    GRADIO_ALLOW_FLAGGING=never \
+    GRADIO_NUM_PORTS=1 \
+    GRADIO_SERVER_NAME=0.0.0.0 \
+    GRADIO_THEME=huggingface \
+    SYSTEM=spaces
 
-# HF Spaces runs as non-root user
+# Hugging Face runs as user 1000
 RUN useradd -m -u 1000 user
 USER user
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH
+
+# Expose the Gradio port
+EXPOSE 7860
 
 # Launch the app
 CMD ["python", "app.py"]
