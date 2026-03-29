@@ -5,7 +5,7 @@ langgraph
 langchain-mcp-adapters
 mcp
 chromadb
-fastembed
+sentence-transformers
 gradio
 python-dotenv
 PyMuPDF

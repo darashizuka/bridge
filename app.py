@@ -7,7 +7,8 @@ import os
 import warnings
 import tempfile
 from dotenv import load_dotenv
-
+import sys
+print("=== LOADER STARTING ===", flush=True)
 # Suppress upstream Pydantic V1 / Python 3.14 compatibility warnings from LangChain
 warnings.filterwarnings("ignore", message=".*Pydantic V1.*", category=UserWarning)
 warnings.filterwarnings("ignore", message=".*pydantic.v1.*", category=UserWarning)
