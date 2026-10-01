@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bridge
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: devpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dev:devpass@db:5432/bridge
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      CLERK_JWKS_URL: ${CLERK_JWKS_URL}
+      ALLOWED_ORIGINS: http://localhost:3000
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+
+volumes:
+  pgdata:

@@ -12,7 +12,7 @@ from state import GapFinderState
 from tools.vectorstore import index_chunks, reset_session
 
 llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
+    model="openai/gpt-oss-120b",
     api_key=os.getenv("GROQ_API_KEY"),
     temperature=0.2
 )

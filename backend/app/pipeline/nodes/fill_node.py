@@ -1,39 +1,36 @@
-"""
-FillNode — Step 4 ⭐ The MCP Node
-For each gap, uses the MCP web search tool (via langchain-mcp-adapters)
-to fetch real explanations from the web, then uses the LLM to
-synthesize a clean beginner-friendly explanation + flashcard.
-"""
 import os
 import sys
 import json
 import asyncio
+import logging
 import threading
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
-from langchain_mcp_adapters.client import MultiServerMCPClient
-from state import GapFinderState
+from app.pipeline.state import GapFinderState
+from app.config import get_settings
+
+logger = logging.getLogger(__name__)
 
 llm = ChatGroq(
     model="openai/gpt-oss-120b",
-    api_key=os.getenv("GROQ_API_KEY"),
-    temperature=0.3
+    api_key=get_settings().groq_api_key,
+    temperature=0.3,
 )
 
-# Path to our custom MCP server
 MCP_SERVER_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "mcp_server.py")
 
 MCP_CONFIG = {
     "search": {
-        "command": sys.executable,   # Use current Python interpreter
+        "command": sys.executable,
         "args": [MCP_SERVER_PATH],
-        "transport": "stdio"
+        "transport": "stdio",
     }
 }
 
+_fill_semaphore = asyncio.Semaphore(3)
+
 
 async def _search_and_fill(gap: dict, search_tool) -> dict:
-    """Search the web for a concept and generate a clean explanation."""
     concept = gap["concept"]
     context = gap.get("context", "")
 
@@ -46,21 +43,18 @@ async def _search_and_fill(gap: dict, search_tool) -> dict:
             result = await search_tool.ainvoke({"query": query})
             search_results = str(result)
 
-            # Extract URLs from results
             for line in search_results.split("\n"):
                 if line.startswith("URL:"):
                     sources.append(line.replace("URL:", "").strip())
         except Exception as e:
             search_results = f"Search unavailable: {str(e)}"
 
-    # Use LLM to synthesize explanation from search results
     prompt = f"""You are explaining a concept to a student who is taking a course.
 
 The concept "{concept}" appeared in their lecture notes with this context:
 "{context}"
 
-Here is relevant web search information:
-{search_results[:2000]}
+{f"Here is relevant web search information:{chr(10)}{search_results[:2000]}" if search_results else ""}
 
 Write:
 1. A clear, beginner-friendly explanation (3-5 sentences)
@@ -76,44 +70,54 @@ Return ONLY this JSON:
   "flashcard_a": "..."
 }}
 """
-    try:
-        response = llm.invoke([HumanMessage(content=prompt)])
-        content = response.content.strip()
-        if "```" in content:
-            content = content.split("```")[1]
-            if content.startswith("json"):
-                content = content[4:]
-        data = json.loads(content.strip())
-    except Exception:
-        data = {
-            "explanation": f"{concept} is a key concept in this domain.",
-            "example": "See course materials for examples.",
-            "flashcard_q": f"What is {concept}?",
-            "flashcard_a": f"A concept related to {context[:100]}"
-        }
+    async with _fill_semaphore:
+        try:
+            response = await asyncio.to_thread(llm.invoke, [HumanMessage(content=prompt)])
+            content = response.content.strip()
+            if "```" in content:
+                content = content.split("```")[1]
+                if content.startswith("json"):
+                    content = content[4:]
+            data = json.loads(content.strip())
+        except Exception:
+            data = {
+                "explanation": f"{concept} is a key concept in this domain.",
+                "example": "See course materials for examples.",
+                "flashcard_q": f"What is {concept}?",
+                "flashcard_a": f"A concept related to {context[:100]}",
+            }
 
     return {
         **gap,
-        "explanation": data.get("explanation", "") + "\n\n**Example:** " + data.get("example", ""),
+        "explanation": data.get("explanation", "") + "\n\nExample: " + data.get("example", ""),
         "flashcard_q": data.get("flashcard_q", f"What is {concept}?"),
         "flashcard_a": data.get("flashcard_a", ""),
-        "sources": sources[:3]
+        "sources": sources[:3],
     }
 
 
 async def _fill_all_gaps(gaps: list) -> list:
-    """Run web search + fill for all gaps using MCP client."""
-    client = MultiServerMCPClient(MCP_CONFIG)
+    search_tool = None
     try:
+        from langchain_mcp_adapters.client import MultiServerMCPClient
+        from langchain_mcp_adapters.sessions import StdioConnection
+        client = MultiServerMCPClient({
+            "search": StdioConnection(
+                transport="stdio",
+                command=sys.executable,
+                args=[MCP_SERVER_PATH],
+            )
+        })
         tools = await client.get_tools()
         search_tool = next((t for t in tools if t.name == "web_search"), None)
+        logger.info("MCP search tool connected")
     except Exception as e:
+        logger.warning(f"MCP search unavailable, using LLM only: {e}")
         search_tool = None
 
     tasks = [_search_and_fill(gap, search_tool) for gap in gaps]
     filled = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # Handle any exceptions from individual tasks
     results = []
     for i, result in enumerate(filled):
         if isinstance(result, Exception):
@@ -130,8 +134,6 @@ async def _fill_all_gaps(gaps: list) -> list:
 
 
 def _run_async_in_thread(coro):
-    """Run an async coroutine in a dedicated thread with its own event loop.
-    This avoids conflicts with existing event loops (e.g. in Gradio on Windows)."""
     result = [None]
     exception = [None]
 
@@ -155,19 +157,25 @@ def _run_async_in_thread(coro):
 
 
 def fill_node(state: GapFinderState) -> dict:
-    """LangGraph node: fill gaps using MCP web search."""
     gaps = state.get("prioritized_gaps", [])
 
     if not gaps:
-        return {"filled_gaps": [], "status": "⚠️ No gaps to fill"}
+        return {"filled_gaps": [], "status": "No gaps to fill"}
 
-    # Limit to top 10 gaps to keep it fast for demo
-    gaps_to_fill = gaps[:10]
+    settings = get_settings()
+    max_gaps = settings.max_gaps_to_fill
+    gaps_to_fill = gaps[:max_gaps]
 
     filled = _run_async_in_thread(_fill_all_gaps(gaps_to_fill))
 
+    total = len(gaps)
+    filled_count = len(filled)
+    msg = f"Filled {filled_count} gaps"
+    if total > filled_count:
+        msg += f" ({total - filled_count} lower-priority gaps skipped)"
+
     return {
         "filled_gaps": filled,
-        "status": f"🌐 Filled {len(filled)} gaps via MCP web search",
-        "messages": [AIMessage(content=f"Fetched explanations for {len(filled)} concepts")]
+        "status": msg,
+        "messages": [AIMessage(content=msg)],
     }

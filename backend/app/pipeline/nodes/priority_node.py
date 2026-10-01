@@ -1,30 +1,22 @@
-"""
-PriorityNode — Step 3
-Ranks detected gaps by severity:
-  HIGH   — blocks understanding of multiple other concepts
-  MEDIUM — mentioned frequently but unexplained
-  LOW    — mentioned once in passing
-"""
-import os
 import json
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
-from state import GapFinderState, Gap
+from app.pipeline.state import GapFinderState
+from app.config import get_settings
 
 llm = ChatGroq(
     model="openai/gpt-oss-120b",
-    api_key=os.getenv("GROQ_API_KEY"),
-    temperature=0.1
+    api_key=get_settings().groq_api_key,
+    temperature=0.1,
 )
 
 
 def priority_node(state: GapFinderState) -> dict:
-    """LangGraph node: rank gaps by importance."""
     gaps = state.get("gaps", [])
     raw_text = state.get("raw_text", "")
 
     if not gaps:
-        return {"prioritized_gaps": [], "status": "⚠️ No gaps to prioritize"}
+        return {"prioritized_gaps": [], "status": "No gaps to prioritize"}
 
     gap_list = [g["concept"] for g in gaps]
 
@@ -54,7 +46,6 @@ Example: {{"attention mechanism": "high", "BLEU score": "low"}}
     except Exception:
         severity_map = {g["concept"]: "medium" for g in gaps}
 
-    # Apply severity scores, then sort: high > medium > low
     order = {"high": 0, "medium": 1, "low": 2}
     ranked = []
     for gap in gaps:
@@ -64,8 +55,9 @@ Example: {{"attention mechanism": "high", "BLEU score": "low"}}
 
     ranked.sort(key=lambda g: order.get(g["severity"], 1))
 
+    high_count = sum(1 for g in ranked if g["severity"] == "high")
     return {
         "prioritized_gaps": ranked,
-        "status": f"📊 Prioritized {len(ranked)} gaps",
-        "messages": [AIMessage(content=f"Ranked gaps — {sum(1 for g in ranked if g['severity']=='high')} high priority")]
+        "status": f"Prioritized {len(ranked)} gaps",
+        "messages": [AIMessage(content=f"Ranked gaps -- {high_count} high priority")],
     }

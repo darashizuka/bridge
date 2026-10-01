@@ -1,7 +1,32 @@
-.env
+# Python
 __pycache__/
 *.pyc
 *.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+backend/.env
+
+# ChromaDB
 .chroma/
-*.db
+
+# IDE
 .DS_Store
+.vscode/
+.idea/
+
+# Build artifacts
+*.db
+dist/
+build/
+
+# OS
+Thumbs.db

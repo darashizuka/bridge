@@ -1,30 +1,22 @@
-"""
-ConnectNode — Step 5
-Builds a concept dependency map:
-  - Which concepts depend on which other concepts?
-  - Shows the "unlock order" for studying
-Stores concept relationships in ChromaDB for future use.
-"""
-import os
 import json
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
-from state import GapFinderState
+from app.pipeline.state import GapFinderState
+from app.config import get_settings
 
 llm = ChatGroq(
     model="openai/gpt-oss-120b",
-    api_key=os.getenv("GROQ_API_KEY"),
-    temperature=0.2
+    api_key=get_settings().groq_api_key,
+    temperature=0.2,
 )
 
 
 def connect_node(state: GapFinderState) -> dict:
-    """LangGraph node: build concept dependency graph."""
     filled_gaps = state.get("filled_gaps", [])
     all_concepts = state.get("all_concepts", [])
 
     if not filled_gaps:
-        return {"concept_dependencies": {}, "status": "⚠️ No concepts to connect"}
+        return {"concept_dependencies": {}, "status": "No concepts to connect"}
 
     gap_concepts = [g["concept"] for g in filled_gaps]
 
@@ -61,6 +53,6 @@ Return ONLY a JSON object like:
 
     return {
         "concept_dependencies": deps,
-        "status": f"🗺️ Mapped dependencies for {len(deps)} concepts",
-        "messages": [AIMessage(content=f"Built concept dependency map")]
+        "status": f"Mapped dependencies for {len(deps)} concepts",
+        "messages": [AIMessage(content="Built concept dependency map")],
     }

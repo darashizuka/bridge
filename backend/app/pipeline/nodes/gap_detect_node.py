@@ -1,74 +1,61 @@
-"""
-GapDetectNode — Step 2
-For each concept extracted from the notes, checks ChromaDB
-to see if the notes actually *explain* it or just mention it.
-Concepts that are mentioned but not explained = GAPS.
-"""
-import os
 import json
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
-from state import GapFinderState, Gap
-from tools.vectorstore import is_concept_explained
+from app.pipeline.state import GapFinderState, Gap
+from app.pipeline.tools.vectorstore import is_concept_explained
+from app.config import get_settings
 
 llm = ChatGroq(
     model="openai/gpt-oss-120b",
-    api_key=os.getenv("GROQ_API_KEY"),
-    temperature=0.1
+    api_key=get_settings().groq_api_key,
+    temperature=0.1,
 )
 
 
 def gap_detect_node(state: GapFinderState) -> dict:
-    """LangGraph node: detect which concepts have no explanation in notes."""
     concepts = state.get("all_concepts", [])
     raw_text = state.get("raw_text", "")
+    analysis_id = state.get("analysis_id", "default")
 
     if not concepts:
-        return {"gaps": [], "status": "⚠️ No concepts to analyze"}
+        return {"gaps": [], "status": "No concepts to analyze"}
 
     gaps = []
-
-    # For each concept, use ChromaDB to check if it's explained
     for concept in concepts:
-        is_explained, snippet = is_concept_explained(concept)
-
+        is_explained, _ = is_concept_explained(concept, analysis_id)
         if not is_explained:
-            # Find the sentence where this concept appears for context
             context = _find_context(concept, raw_text)
-
             gaps.append(Gap(
                 concept=concept,
                 context=context,
-                severity="medium",   # Will be set properly in priority_node
-                explanation="",      # Will be filled by fill_node
+                severity="medium",
+                explanation="",
                 flashcard_q="",
                 flashcard_a="",
-                sources=[]
+                sources=[],
             ))
 
-    # Use LLM to also detect "hand-wavy" sections and assumed prerequisites
     assumed = _detect_assumed_knowledge(raw_text)
     for concept in assumed:
         if concept not in [g["concept"] for g in gaps]:
             gaps.append(Gap(
                 concept=concept,
-                context="[Assumed prerequisite — never introduced in these notes]",
+                context="Assumed prerequisite -- never introduced in these notes",
                 severity="high",
                 explanation="",
                 flashcard_q="",
                 flashcard_a="",
-                sources=[]
+                sources=[],
             ))
 
     return {
         "gaps": gaps,
-        "status": f"🔍 Found {len(gaps)} knowledge gaps",
-        "messages": [AIMessage(content=f"Detected {len(gaps)} gaps out of {len(concepts)} concepts")]
+        "status": f"Found {len(gaps)} knowledge gaps",
+        "messages": [AIMessage(content=f"Detected {len(gaps)} gaps out of {len(concepts)} concepts")],
     }
 
 
 def _find_context(concept: str, text: str) -> str:
-    """Find the sentence containing the concept for context."""
     sentences = text.replace("\n", " ").split(".")
     concept_lower = concept.lower()
     for sentence in sentences:
@@ -78,7 +65,6 @@ def _find_context(concept: str, text: str) -> str:
 
 
 def _detect_assumed_knowledge(raw_text: str) -> list[str]:
-    """Use LLM to find concepts that are assumed but never introduced."""
     prompt = f"""You are analyzing lecture notes.
 
 Find concepts that are assumed known but never actually defined or explained in these notes.

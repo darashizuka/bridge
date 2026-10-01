@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #0f0f13;
+  --color-foreground: #e2e8f0;
+  --color-muted: #94a3b8;
+  --color-border: #1e293b;
+  --color-card: #151520;
+  --color-card-hover: #1a1a2e;
+  --color-primary: #6366f1;
+  --color-primary-hover: #818cf8;
+  --color-high: #ef4444;
+  --color-medium: #f59e0b;
+  --color-low: #22c55e;
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+/* Flashcard flip */
+.flip-card { perspective: 1000px; }
+.flip-card-inner {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+.flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+.flip-card-front, .flip-card-back {
+  backface-visibility: hidden;
+  position: absolute;
+  inset: 0;
+}
+.flip-card-back { transform: rotateY(180deg); }
+
+/* React Flow overrides */
+.react-flow__background { background: var(--color-background) !important; }
+.react-flow__minimap { background: var(--color-card) !important; }
