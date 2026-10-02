@@ -2,7 +2,6 @@ import json
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
 from app.pipeline.state import GapFinderState
-from app.pipeline.tools.vectorstore import index_chunks
 from app.config import get_settings
 
 llm = ChatGroq(
@@ -32,8 +31,6 @@ def parse_node(state: GapFinderState) -> dict:
         return {"status": "No text found in file", "all_concepts": [], "gaps": []}
 
     chunks = chunk_text(raw_text)
-    if chunks:
-        index_chunks(chunks, analysis_id)
 
     text_for_llm = raw_text[:8000]
     prompt = f"""You are analyzing lecture notes or slides.

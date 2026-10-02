@@ -2,7 +2,6 @@ import json
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
 from app.pipeline.state import GapFinderState, Gap
-from app.pipeline.tools.vectorstore import is_concept_explained
 from app.config import get_settings
 
 llm = ChatGroq(
@@ -15,25 +14,24 @@ llm = ChatGroq(
 def gap_detect_node(state: GapFinderState) -> dict:
     concepts = state.get("all_concepts", [])
     raw_text = state.get("raw_text", "")
-    analysis_id = state.get("analysis_id", "default")
 
     if not concepts:
         return {"gaps": [], "status": "No concepts to analyze"}
 
+    unexplained = _filter_unexplained(concepts, raw_text)
+
     gaps = []
-    for concept in concepts:
-        is_explained, _ = is_concept_explained(concept, analysis_id)
-        if not is_explained:
-            context = _find_context(concept, raw_text)
-            gaps.append(Gap(
-                concept=concept,
-                context=context,
-                severity="medium",
-                explanation="",
-                flashcard_q="",
-                flashcard_a="",
-                sources=[],
-            ))
+    for concept in unexplained:
+        context = _find_context(concept, raw_text)
+        gaps.append(Gap(
+            concept=concept,
+            context=context,
+            severity="medium",
+            explanation="",
+            flashcard_q="",
+            flashcard_a="",
+            sources=[],
+        ))
 
     assumed = _detect_assumed_knowledge(raw_text)
     for concept in assumed:
@@ -53,6 +51,33 @@ def gap_detect_node(state: GapFinderState) -> dict:
         "status": f"Found {len(gaps)} knowledge gaps",
         "messages": [AIMessage(content=f"Detected {len(gaps)} gaps out of {len(concepts)} concepts")],
     }
+
+
+def _filter_unexplained(concepts: list[str], raw_text: str) -> list[str]:
+    concepts_str = json.dumps(concepts)
+    prompt = f"""You are analyzing lecture notes. Given this list of concepts and the lecture text below, identify which concepts are NOT adequately explained or defined in the text.
+
+A concept is "explained" if the text defines it, gives a formula, walks through how it works, or provides enough detail for a student to understand it. A concept is "unexplained" if it is only mentioned in passing, used without definition, or assumed as prior knowledge.
+
+CONCEPTS:
+{concepts_str}
+
+LECTURE TEXT:
+{raw_text[:6000]}
+
+Return ONLY a JSON array of the UNEXPLAINED concept strings (a subset of the input list). No explanation.
+"""
+    try:
+        response = llm.invoke([HumanMessage(content=prompt)])
+        content = response.content.strip()
+        if "```" in content:
+            content = content.split("```")[1]
+            if content.startswith("json"):
+                content = content[4:]
+        result = json.loads(content.strip())
+        return [c for c in result if c in concepts]
+    except Exception:
+        return concepts
 
 
 def _find_context(concept: str, text: str) -> str:
