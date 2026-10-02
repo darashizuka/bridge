@@ -1,6 +1,6 @@
 # Bridge
 
-Full-stack app that finds knowledge gaps in lecture notes and helps students fill them. Upload PDF, PPTX, or TXT files — the AI pipeline detects concepts that are mentioned but never explained, searches the web for explanations, and generates a study guide, dependency graph, and flashcard deck.
+Full-stack app that finds knowledge gaps in lecture notes and helps students fill them. Upload PDF, PPTX, or TXT files and the AI pipeline detects concepts that are mentioned but never explained, searches the web for explanations, and generates a study guide, dependency graph, and flashcard deck.
 
 **Live:** [bridge-ten-pied.vercel.app](https://bridge-ten-pied.vercel.app)
 
@@ -8,12 +8,12 @@ Full-stack app that finds knowledge gaps in lecture notes and helps students fil
 
 The backend runs a six-stage LangGraph pipeline:
 
-1. **Parse** — Extract text from uploaded files (PDF, PPTX, TXT)
-2. **Detect Gaps** — LLM identifies concepts mentioned but not adequately explained
-3. **Prioritize** — Rank gaps by severity (high / medium / low)
-4. **Fill** — Search the web for each gap using a custom MCP server, then synthesize explanations
-5. **Connect** — Build a concept dependency graph
-6. **Output** — Generate a structured study guide and flashcards
+1. **Parse** - Extract text from uploaded files (PDF, PPTX, TXT)
+2. **Detect Gaps** - LLM identifies concepts mentioned but not adequately explained
+3. **Prioritize** - Rank gaps by severity (high / medium / low)
+4. **Fill** - Search the web for each gap using a custom MCP server, then synthesize explanations
+5. **Connect** - Build a concept dependency graph
+6. **Output** - Generate a structured study guide and flashcards
 
 Progress streams to the frontend in real time via SSE.
 
@@ -57,12 +57,12 @@ npm run dev
 ## Environment Variables
 
 ### Backend (Render)
-- `DATABASE_URL` — PostgreSQL connection string (`postgresql+asyncpg://...?ssl=require`)
-- `GROQ_API_KEY` — Groq API key
-- `CLERK_JWKS_URL` — Clerk JWKS endpoint for JWT verification
-- `ALLOWED_ORIGINS` — Comma-separated allowed CORS origins
+- `DATABASE_URL` - PostgreSQL connection string (`postgresql+asyncpg://...?ssl=require`)
+- `GROQ_API_KEY` - Groq API key
+- `CLERK_JWKS_URL` - Clerk JWKS endpoint for JWT verification
+- `ALLOWED_ORIGINS` - Comma-separated allowed CORS origins
 
 ### Frontend (Vercel)
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` — Clerk publishable key
-- `CLERK_SECRET_KEY` — Clerk secret key
-- `NEXT_PUBLIC_API_URL` — Backend API base URL
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk publishable key
+- `CLERK_SECRET_KEY` - Clerk secret key
+- `NEXT_PUBLIC_API_URL` - Backend API base URL
