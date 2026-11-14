@@ -11,3 +11,5 @@ venv
 node_modules
 .gitignore
 README.md
+backend
+frontend
