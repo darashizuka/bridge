@@ -13,6 +13,6 @@ langgraph
 langchain-mcp-adapters
 mcp
 python-multipart
-PyMuPDF
+PyMuPDF<2
 python-pptx
 duckduckgo-search
