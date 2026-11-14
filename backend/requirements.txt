@@ -16,3 +16,4 @@ python-multipart
 PyMuPDF<2
 python-pptx
 duckduckgo-search
+psutil
