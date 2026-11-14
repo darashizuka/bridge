@@ -136,8 +136,8 @@ export default function AnalysisPage({
   if (error) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
-        <AlertCircle size={48} className="text-red-400" />
-        <p className="text-red-400">{error}</p>
+        <AlertCircle size={48} className="text-red-700" />
+        <p className="text-red-700">{error}</p>
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-2 text-sm text-[var(--color-primary)] hover:underline"
@@ -199,7 +199,7 @@ export default function AnalysisPage({
             className={cn(
               "flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors",
               tab === t.key
-                ? "bg-[var(--color-primary)] text-zinc-950"
+                ? "bg-[var(--color-primary)] text-white"
                 : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
             )}
           >

@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #09090b;
-  --color-foreground: #fafafa;
-  --color-muted: #a1a1aa;
-  --color-border: #27272a;
-  --color-card: #18181b;
-  --color-card-hover: #27272a;
-  --color-primary: #2dd4bf;
-  --color-primary-hover: #5eead4;
-  --color-high: #ef4444;
-  --color-medium: #f59e0b;
-  --color-low: #22c55e;
+  --color-background: #f5f0e8;
+  --color-foreground: #1c1917;
+  --color-muted: #78716c;
+  --color-border: #d6cfc4;
+  --color-card: #ece6da;
+  --color-card-hover: #e2dace;
+  --color-primary: #8b3a3a;
+  --color-primary-hover: #a34545;
+  --color-high: #b91c1c;
+  --color-medium: #b45309;
+  --color-low: #15803d;
   --font-sans: var(--font-sans);
 }
 
@@ -24,7 +24,7 @@ body {
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #c4bdb2; border-radius: 3px; }
 
 /* Flashcard flip */
 .flip-card { perspective: 1000px; }

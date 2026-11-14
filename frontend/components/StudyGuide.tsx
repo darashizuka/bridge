@@ -14,7 +14,7 @@ export default function StudyGuide({ content }: StudyGuideProps) {
   }
 
   return (
-    <div className="prose prose-invert max-w-none prose-headings:text-[var(--color-foreground)] prose-p:text-[var(--color-muted)] prose-strong:text-[var(--color-foreground)] prose-a:text-[var(--color-primary)] prose-blockquote:border-[var(--color-primary)]/50 prose-blockquote:text-[var(--color-muted)] prose-hr:border-[var(--color-border)]">
+    <div className="prose max-w-none prose-headings:text-[var(--color-foreground)] prose-p:text-[var(--color-muted)] prose-strong:text-[var(--color-foreground)] prose-a:text-[var(--color-primary)] prose-blockquote:border-[var(--color-primary)]/50 prose-blockquote:text-[var(--color-muted)] prose-hr:border-[var(--color-border)]">
       <ReactMarkdown>{content}</ReactMarkdown>
     </div>
   );

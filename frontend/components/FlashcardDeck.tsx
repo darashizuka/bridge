@@ -82,11 +82,11 @@ export default function FlashcardDeck({
         <h3 className="text-xl font-semibold">Session Complete</h3>
         <div className="flex gap-8">
           <div className="text-center">
-            <p className="text-3xl font-bold text-green-400">{results.known}</p>
+            <p className="text-3xl font-bold text-green-700">{results.known}</p>
             <p className="text-sm text-[var(--color-muted)]">Known</p>
           </div>
           <div className="text-center">
-            <p className="text-3xl font-bold text-amber-400">
+            <p className="text-3xl font-bold text-amber-600">
               {results.unknown}
             </p>
             <p className="text-sm text-[var(--color-muted)]">Still learning</p>
@@ -94,7 +94,7 @@ export default function FlashcardDeck({
         </div>
         <div className="h-2 w-64 overflow-hidden rounded-full bg-[var(--color-border)]">
           <div
-            className="h-full bg-green-500 transition-all"
+            className="h-full bg-green-700 transition-all"
             style={{
               width: `${total > 0 ? (results.known / total) * 100 : 0}%`,
             }}
@@ -176,14 +176,14 @@ export default function FlashcardDeck({
         <div className="flex gap-4">
           <button
             onClick={() => handleMark("unknown")}
-            className="inline-flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-6 py-2.5 text-sm font-medium text-amber-400 hover:bg-amber-500/20 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-amber-600/30 bg-amber-600/10 px-6 py-2.5 text-sm font-medium text-amber-700 hover:bg-amber-600/20 transition-colors"
           >
             <X size={16} />
             Still learning
           </button>
           <button
             onClick={() => handleMark("known")}
-            className="inline-flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-6 py-2.5 text-sm font-medium text-green-400 hover:bg-green-500/20 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-green-700/30 bg-green-700/10 px-6 py-2.5 text-sm font-medium text-green-700 hover:bg-green-700/20 transition-colors"
           >
             <Check size={16} />
             Got it

@@ -18,15 +18,13 @@ export default function LandingPage() {
             in knowledge
           </h1>
           <p className="mt-4 text-lg text-[var(--color-muted)]">
-            AI-powered analysis that finds what your lectures mention but never
-            explain, fills those gaps with real sources, and builds you a
-            personalized study guide.
+            Find knowledge gaps
           </p>
           <div className="mt-8 flex items-center justify-center gap-4">
             <Show when="signed-in">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-medium text-zinc-950 hover:bg-[var(--color-primary-hover)] transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-medium text-white hover:bg-[var(--color-primary-hover)] transition-colors"
               >
                 Go to Dashboard
                 <ArrowRight size={18} />
@@ -35,7 +33,7 @@ export default function LandingPage() {
             <Show when="signed-out">
               <Link
                 href="/sign-up"
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-medium text-zinc-950 hover:bg-[var(--color-primary-hover)] transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-medium text-white hover:bg-[var(--color-primary-hover)] transition-colors"
               >
                 Get started
                 <ArrowRight size={18} />

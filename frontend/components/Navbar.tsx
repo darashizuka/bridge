@@ -45,7 +45,7 @@ export default function Navbar({ onHistoryClick }: NavbarProps) {
             </Link>
             <Link
               href="/sign-up"
-              className="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-[var(--color-primary-hover)] transition-colors"
+              className="rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-primary-hover)] transition-colors"
             >
               Sign up
             </Link>

@@ -13,11 +13,11 @@ export function formatDate(dateStr: string): string {
 export function severityColor(severity: string): string {
   switch (severity) {
     case "high":
-      return "bg-red-500";
+      return "bg-red-700";
     case "medium":
-      return "bg-amber-500";
+      return "bg-amber-600";
     case "low":
-      return "bg-green-500";
+      return "bg-green-700";
     default:
       return "bg-gray-500";
   }
@@ -26,12 +26,12 @@ export function severityColor(severity: string): string {
 export function severityTextColor(severity: string): string {
   switch (severity) {
     case "high":
-      return "text-red-400";
+      return "text-red-700";
     case "medium":
-      return "text-amber-400";
+      return "text-amber-600";
     case "low":
-      return "text-green-400";
+      return "text-green-700";
     default:
-      return "text-gray-400";
+      return "text-gray-500";
   }
 }

@@ -112,7 +112,7 @@ export default function HistorySidebar({
                             className="w-full rounded border border-[var(--color-primary)] bg-transparent px-1 text-sm focus:outline-none"
                           />
                           <button onClick={() => confirmEdit(a.id)}>
-                            <Check size={14} className="text-green-400" />
+                            <Check size={14} className="text-green-700" />
                           </button>
                         </div>
                       ) : (
@@ -142,7 +142,7 @@ export default function HistorySidebar({
                       </button>
                       <button
                         onClick={() => onDelete(a.id)}
-                        className="p-1 text-[var(--color-muted)] hover:text-red-400"
+                        className="p-1 text-[var(--color-muted)] hover:text-red-700"
                       >
                         <Trash2 size={14} />
                       </button>
