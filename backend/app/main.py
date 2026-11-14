@@ -1,3 +1,5 @@
+import sys
+import psutil
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,10 +8,27 @@ from app.database import engine, Base
 from app.routers import analyses, flashcards, health
 
 
+def _log_memory(label: str):
+    mem = psutil.Process().memory_info()
+    mods = len(sys.modules)
+    heavy = {p: p in sys.modules for p in [
+        "onnxruntime", "numpy", "torch", "PIL", "fitz",
+        "langchain_community", "langchain", "cryptography",
+    ]}
+    loaded = [k for k, v in heavy.items() if v]
+    print(f"[MEMORY] {label}: RSS={mem.rss // 1024 // 1024}MB | "
+          f"modules={mods} | heavy={loaded}", flush=True)
+
+
+_log_memory("after imports")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _log_memory("lifespan start")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    _log_memory("lifespan ready")
     yield
     await engine.dispose()
 
