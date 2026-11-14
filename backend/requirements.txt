@@ -7,9 +7,8 @@ python-dotenv
 PyJWT
 cryptography
 jwcrypto
-langchain
+langchain-core
 langchain-groq
-langchain-community
 langgraph
 langchain-mcp-adapters
 mcp
