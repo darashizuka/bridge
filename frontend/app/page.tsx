@@ -12,7 +12,7 @@ export default function LandingPage() {
         <div className="max-w-2xl text-center">
           <h1 className="text-5xl font-bold tracking-tight text-[var(--color-foreground)]">
             Upload lecture notes and{" "}
-            <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="text-[var(--color-primary)]">
               bridge gaps
             </span>{" "}
             in knowledge
@@ -26,7 +26,7 @@ export default function LandingPage() {
             <Show when="signed-in">
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-medium text-white hover:bg-[var(--color-primary-hover)] transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-medium text-zinc-950 hover:bg-[var(--color-primary-hover)] transition-colors"
               >
                 Go to Dashboard
                 <ArrowRight size={18} />
@@ -35,7 +35,7 @@ export default function LandingPage() {
             <Show when="signed-out">
               <Link
                 href="/sign-up"
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-medium text-white hover:bg-[var(--color-primary-hover)] transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-6 py-3 font-medium text-zinc-950 hover:bg-[var(--color-primary-hover)] transition-colors"
               >
                 Get started
                 <ArrowRight size={18} />

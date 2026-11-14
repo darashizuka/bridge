@@ -79,7 +79,7 @@ export default function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
             className={cn(
               "flex-1 rounded-md py-2 text-sm font-medium transition-colors",
               tab === t
-                ? "bg-[var(--color-primary)] text-white"
+                ? "bg-[var(--color-primary)] text-zinc-950"
                 : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
             )}
           >
@@ -159,7 +159,7 @@ export default function UploadForm({ onSubmit, isLoading }: UploadFormProps) {
       <button
         onClick={handleSubmit}
         disabled={isLoading}
-        className="mt-4 w-full rounded-lg bg-[var(--color-primary)] py-3 font-medium text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="mt-4 w-full rounded-lg bg-[var(--color-primary)] py-3 font-medium text-zinc-950 hover:bg-[var(--color-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {isLoading ? "Analyzing..." : "Analyze"}
       </button>

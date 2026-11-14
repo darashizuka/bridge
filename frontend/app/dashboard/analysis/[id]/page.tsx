@@ -199,7 +199,7 @@ export default function AnalysisPage({
             className={cn(
               "flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors",
               tab === t.key
-                ? "bg-[var(--color-primary)] text-white"
+                ? "bg-[var(--color-primary)] text-zinc-950"
                 : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
             )}
           >
