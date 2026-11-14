@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     allowed_origins: str = "http://localhost:3000"
     max_file_size_mb: int = 10
     max_text_chars: int = 50000
-    max_gaps_to_fill: int = 25
+    max_gaps_to_fill: int = 10
     rate_limit_analyses_per_hour: int = 5
     rate_limit_reads_per_minute: int = 60
 
