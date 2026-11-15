@@ -12,7 +12,7 @@ from app.config import get_settings
 logger = logging.getLogger(__name__)
 
 llm = ChatGroq(
-    model="openai/gpt-oss-120b",
+    model="qwen/qwen3.8-27b",
     api_key=get_settings().groq_api_key,
     temperature=0.3,
 )
