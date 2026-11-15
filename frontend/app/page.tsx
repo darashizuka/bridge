@@ -17,9 +17,9 @@ export default function LandingPage() {
             </span>{" "}
             in knowledge
           </h1>
-          <p className="mt-4 text-lg text-[var(--color-muted)]">
+          {/* <p className="mt-4 text-lg text-[var(--color-muted)]">
             Find knowledge gaps
-          </p>
+          </p> */}
           <div className="mt-8 flex items-center justify-center gap-4">
             <Show when="signed-in">
               <Link

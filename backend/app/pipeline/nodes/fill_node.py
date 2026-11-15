@@ -27,7 +27,7 @@ MCP_CONFIG = {
     }
 }
 
-_fill_semaphore = asyncio.Semaphore(2)
+_fill_semaphore = asyncio.Semaphore(3)
 
 
 async def _search_and_fill(gap: dict, search_tool) -> dict:
@@ -115,18 +115,20 @@ async def _fill_all_gaps(gaps: list) -> list:
         logger.warning(f"MCP search unavailable, using LLM only: {e}")
         search_tool = None
 
+    tasks = [_search_and_fill(gap, search_tool) for gap in gaps]
+    filled = await asyncio.gather(*tasks, return_exceptions=True)
+
     results = []
-    for gap in gaps:
-        try:
-            result = await _search_and_fill(gap, search_tool)
-            results.append(result)
-        except Exception as e:
-            fallback = dict(gap)
-            fallback["explanation"] = f"Could not fetch explanation: {str(e)}"
-            fallback["flashcard_q"] = f"What is {gap['concept']}?"
+    for i, result in enumerate(filled):
+        if isinstance(result, Exception):
+            fallback = dict(gaps[i])
+            fallback["explanation"] = f"Could not fetch explanation: {str(result)}"
+            fallback["flashcard_q"] = f"What is {gaps[i]['concept']}?"
             fallback["flashcard_a"] = ""
             fallback["sources"] = []
             results.append(fallback)
+        else:
+            results.append(result)
 
     return results
 
