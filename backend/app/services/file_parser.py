@@ -8,8 +8,9 @@ def extract_text_from_file(file_path: str) -> str:
         import pymupdf
         doc = pymupdf.open(file_path)
         text = "\n".join(page.get_text() for page in doc)
+        num_pages = len(doc)
         doc.close()
-        print(f"[PDF] Extracted {len(text)} chars, {len(doc)} pages, first 200: {text[:200]}", flush=True)
+        print(f"[PDF] Extracted {len(text)} chars, {num_pages} pages, first 200: {text[:200]}", flush=True)
         return text
 
     elif ext in (".pptx", ".ppt"):
