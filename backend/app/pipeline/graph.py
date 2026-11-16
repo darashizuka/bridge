@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 
 def safe_node(node_fn, node_name: str):
     def wrapper(state: GapFinderState) -> dict:
-        logger.info(f"Node {node_name} starting")
+        print(f"[PIPELINE] {node_name} starting", flush=True)
         result = node_fn(state)
-        logger.info(f"Node {node_name} done: {result.get('status', '?')}")
+        print(f"[PIPELINE] {node_name} done: {result.get('status', '?')}", flush=True)
         return result
     wrapper.__name__ = node_name
     return wrapper
