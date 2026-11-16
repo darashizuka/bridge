@@ -5,8 +5,8 @@ def extract_text_from_file(file_path: str) -> str:
     ext = os.path.splitext(file_path)[1].lower()
 
     if ext == ".pdf":
-        import fitz
-        doc = fitz.open(file_path)
+        import pymupdf
+        doc = pymupdf.open(file_path)
         text = "\n".join(page.get_text() for page in doc)
         doc.close()
         return text
