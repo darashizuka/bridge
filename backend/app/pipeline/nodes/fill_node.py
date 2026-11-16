@@ -4,18 +4,12 @@ import json
 import asyncio
 import logging
 import threading
-from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
 from app.pipeline.state import GapFinderState
+from app.pipeline.llm import get_llm
 from app.config import get_settings
 
 logger = logging.getLogger(__name__)
-
-llm = ChatGroq(
-    model="openai/gpt-oss-20b",
-    api_key=get_settings().groq_api_key,
-    temperature=0.3,
-)
 
 MCP_SERVER_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "mcp_server.py")
 
@@ -27,7 +21,7 @@ MCP_CONFIG = {
     }
 }
 
-_fill_semaphore = asyncio.Semaphore(3)
+_fill_semaphore = asyncio.Semaphore(1)
 
 
 async def _search_and_fill(gap: dict, search_tool) -> dict:
@@ -72,7 +66,7 @@ Return ONLY this JSON:
 """
     async with _fill_semaphore:
         try:
-            response = await asyncio.to_thread(llm.invoke, [HumanMessage(content=prompt)])
+            response = await asyncio.to_thread(get_llm().invoke, [HumanMessage(content=prompt)])
             content = response.content.strip()
             if "```" in content:
                 content = content.split("```")[1]

@@ -1,14 +1,7 @@
 import json
-from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
 from app.pipeline.state import GapFinderState
-from app.config import get_settings
-
-llm = ChatGroq(
-    model="openai/gpt-oss-20b",
-    api_key=get_settings().groq_api_key,
-    temperature=0.2,
-)
+from app.pipeline.llm import get_llm
 
 
 def chunk_text(text: str, chunk_size: int = 400) -> list[str]:
@@ -43,7 +36,7 @@ Example: ["attention mechanism", "backpropagation", "gradient descent", "softmax
 LECTURE TEXT:
 {text_for_llm}
 """
-    response = llm.invoke([HumanMessage(content=prompt)])
+    response = get_llm().invoke([HumanMessage(content=prompt)])
     content = response.content.strip()
 
     try:
