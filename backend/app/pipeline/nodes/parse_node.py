@@ -52,10 +52,8 @@ Example: ["attention mechanism", "backpropagation", "gradient descent", "softmax
 LECTURE TEXT:
 {text_for_llm}
 """
-    llm = get_llm().bind(max_tokens=8000)
-    response = llm.invoke([HumanMessage(content=prompt)])
+    response = get_llm().invoke([HumanMessage(content=prompt)])
     content = response.content.strip()
-    print(f"[PARSE] LLM response len={len(content)}, first 200: {content[:200]}", flush=True)
 
     try:
         concepts = _extract_json(content)
