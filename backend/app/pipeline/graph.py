@@ -14,14 +14,10 @@ logger = logging.getLogger(__name__)
 
 def safe_node(node_fn, node_name: str):
     def wrapper(state: GapFinderState) -> dict:
-        try:
-            return node_fn(state)
-        except Exception as e:
-            logger.exception(f"Node {node_name} failed: {e}")
-            return {
-                "status": f"Error in {node_name}: {str(e)}",
-                "messages": [AIMessage(content=f"Warning: {node_name} failed: {str(e)}")],
-            }
+        logger.info(f"Node {node_name} starting")
+        result = node_fn(state)
+        logger.info(f"Node {node_name} done: {result.get('status', '?')}")
+        return result
     wrapper.__name__ = node_name
     return wrapper
 
