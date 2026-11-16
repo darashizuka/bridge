@@ -1,7 +1,20 @@
 import json
+import re
 from langchain_core.messages import HumanMessage, AIMessage
 from app.pipeline.state import GapFinderState
 from app.pipeline.llm import get_llm
+
+
+def _extract_json(text: str):
+    if "```" in text:
+        text = text.split("```")[1]
+        if text.startswith("json"):
+            text = text[4:]
+        return json.loads(text.strip())
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    return json.loads(text.strip())
 
 
 def connect_node(state: GapFinderState) -> dict:
@@ -35,12 +48,7 @@ Return ONLY a JSON object like:
 """
     try:
         response = get_llm().invoke([HumanMessage(content=prompt)])
-        content = response.content.strip()
-        if "```" in content:
-            content = content.split("```")[1]
-            if content.startswith("json"):
-                content = content[4:]
-        deps = json.loads(content.strip())
+        deps = _extract_json(response.content.strip())
     except Exception:
         deps = {g["concept"]: [] for g in filled_gaps}
 

@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import re
 import asyncio
 import logging
 import threading
@@ -8,6 +9,18 @@ from langchain_core.messages import HumanMessage, AIMessage
 from app.pipeline.state import GapFinderState
 from app.pipeline.llm import get_llm
 from app.config import get_settings
+
+
+def _extract_json(text: str):
+    if "```" in text:
+        text = text.split("```")[1]
+        if text.startswith("json"):
+            text = text[4:]
+        return json.loads(text.strip())
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    return json.loads(text.strip())
 
 logger = logging.getLogger(__name__)
 
@@ -67,12 +80,7 @@ Return ONLY this JSON:
     async with _fill_semaphore:
         try:
             response = await asyncio.to_thread(get_llm().invoke, [HumanMessage(content=prompt)])
-            content = response.content.strip()
-            if "```" in content:
-                content = content.split("```")[1]
-                if content.startswith("json"):
-                    content = content[4:]
-            data = json.loads(content.strip())
+            data = _extract_json(response.content.strip())
         except Exception:
             data = {
                 "explanation": f"{concept} is a key concept in this domain.",

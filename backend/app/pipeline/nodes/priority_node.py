@@ -1,7 +1,23 @@
 import json
+import re
 from langchain_core.messages import HumanMessage, AIMessage
 from app.pipeline.state import GapFinderState
 from app.pipeline.llm import get_llm
+
+
+def _extract_json(text: str):
+    if "```" in text:
+        text = text.split("```")[1]
+        if text.startswith("json"):
+            text = text[4:]
+        return json.loads(text.strip())
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    match = re.search(r'\[.*\]', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    return json.loads(text.strip())
 
 
 def priority_node(state: GapFinderState) -> dict:
@@ -30,12 +46,7 @@ Example: {{"attention mechanism": "high", "BLEU score": "low"}}
 """
     try:
         response = get_llm().invoke([HumanMessage(content=prompt)])
-        content = response.content.strip()
-        if "```" in content:
-            content = content.split("```")[1]
-            if content.startswith("json"):
-                content = content[4:]
-        severity_map = json.loads(content.strip())
+        severity_map = _extract_json(response.content.strip())
     except Exception:
         severity_map = {g["concept"]: "medium" for g in gaps}
 

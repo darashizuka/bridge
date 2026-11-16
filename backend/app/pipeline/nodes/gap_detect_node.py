@@ -1,7 +1,23 @@
 import json
+import re
 from langchain_core.messages import HumanMessage, AIMessage
 from app.pipeline.state import GapFinderState, Gap
 from app.pipeline.llm import get_llm
+
+
+def _extract_json(text: str):
+    if "```" in text:
+        text = text.split("```")[1]
+        if text.startswith("json"):
+            text = text[4:]
+        return json.loads(text.strip())
+    match = re.search(r'\[.*\]', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    return json.loads(text.strip())
 
 
 def gap_detect_node(state: GapFinderState) -> dict:
@@ -62,12 +78,7 @@ Return ONLY a JSON array of the UNEXPLAINED concept strings (a subset of the inp
 """
     try:
         response = get_llm().invoke([HumanMessage(content=prompt)])
-        content = response.content.strip()
-        if "```" in content:
-            content = content.split("```")[1]
-            if content.startswith("json"):
-                content = content[4:]
-        result = json.loads(content.strip())
+        result = _extract_json(response.content.strip())
         return [c for c in result if c in concepts]
     except Exception:
         return concepts
@@ -97,11 +108,6 @@ LECTURE TEXT:
 """
     try:
         response = get_llm().invoke([HumanMessage(content=prompt)])
-        content = response.content.strip()
-        if "```" in content:
-            content = content.split("```")[1]
-            if content.startswith("json"):
-                content = content[4:]
-        return json.loads(content.strip())
+        return _extract_json(response.content.strip())
     except Exception:
         return []

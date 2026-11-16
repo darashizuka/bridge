@@ -1,7 +1,23 @@
 import json
+import re
 from langchain_core.messages import HumanMessage, AIMessage
 from app.pipeline.state import GapFinderState
 from app.pipeline.llm import get_llm
+
+
+def _extract_json(text: str):
+    if "```" in text:
+        text = text.split("```")[1]
+        if text.startswith("json"):
+            text = text[4:]
+        return json.loads(text.strip())
+    match = re.search(r'\[.*\]', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    match = re.search(r'\{.*\}', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    return json.loads(text.strip())
 
 
 def chunk_text(text: str, chunk_size: int = 400) -> list[str]:
@@ -40,17 +56,9 @@ LECTURE TEXT:
     content = response.content.strip()
 
     try:
-        if "```" in content:
-            content = content.split("```")[1]
-            if content.startswith("json"):
-                content = content[4:]
-        concepts = json.loads(content.strip())
+        concepts = _extract_json(content)
     except Exception:
-        concepts = [
-            line.strip().strip('",[]')
-            for line in content.split("\n")
-            if line.strip().strip('",[]')
-        ]
+        concepts = [c.strip() for c in re.findall(r'"([^"]+)"', content)]
 
     return {
         "all_concepts": concepts,
