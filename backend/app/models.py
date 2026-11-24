@@ -11,7 +11,7 @@ class User(Base):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     email: Mapped[str | None] = mapped_column(String, unique=True, nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime(timezone=True), default=datetime.datetime.now(datetime.timezone.utc)
+        DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc)
     )
 
     analyses: Mapped[list["Analysis"]] = relationship(back_populates="user", cascade="all, delete-orphan")
@@ -31,12 +31,12 @@ class Analysis(Base):
     gap_count: Mapped[int] = mapped_column(Integer, default=0)
     filled_gap_count: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime(timezone=True), default=datetime.datetime.now(datetime.timezone.utc)
+        DateTime(timezone=True), default=lambda: datetime.datetime.now(datetime.timezone.utc)
     )
     updated_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True),
-        default=datetime.datetime.now(datetime.timezone.utc),
-        onupdate=datetime.datetime.now(datetime.timezone.utc),
+        default=lambda: datetime.datetime.now(datetime.timezone.utc),
+        onupdate=lambda: datetime.datetime.now(datetime.timezone.utc),
     )
 
     user: Mapped["User"] = relationship(back_populates="analyses")

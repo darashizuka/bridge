@@ -95,6 +95,7 @@ async def _save_results(analysis_id: str, final_state: dict):
 
         await session.flush()
 
+        seen_deps = set()
         for concept_name, prereqs in concept_deps.items():
             concept_obj = concept_map.get(concept_name.lower())
             if not concept_obj:
@@ -103,6 +104,10 @@ async def _save_results(analysis_id: str, final_state: dict):
                 prereq_obj = concept_map.get(prereq_name.lower())
                 if not prereq_obj:
                     continue
+                dep_key = (concept_obj.id, prereq_obj.id)
+                if dep_key in seen_deps:
+                    continue
+                seen_deps.add(dep_key)
                 dep = Dependency(
                     id=str(uuid.uuid4()),
                     analysis_id=analysis_id,

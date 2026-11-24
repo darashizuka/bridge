@@ -6,6 +6,7 @@ import tempfile
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select, func
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from app.auth import get_current_user
@@ -69,10 +70,9 @@ async def create_analysis(
             detail=f"Text exceeds {settings.max_text_chars:,} character limit ({len(raw_text):,} chars extracted).",
         )
 
-    existing_user = await db.execute(select(User).where(User.id == user_id))
-    if not existing_user.scalar_one_or_none():
-        db.add(User(id=user_id))
-        await db.flush()
+    stmt = pg_insert(User).values(id=user_id).on_conflict_do_nothing(index_elements=["id"])
+    await db.execute(stmt)
+    await db.flush()
 
     analysis_id = str(uuid.uuid4())
     analysis = Analysis(
