@@ -56,10 +56,15 @@ async def _save_results(analysis_id: str, final_state: dict):
         analysis.status = "completed"
 
         concept_map = {}
+        seen = set()
         for name in all_concepts:
+            key = name.lower()
+            if key in seen:
+                continue
+            seen.add(key)
             concept = Concept(id=str(uuid.uuid4()), analysis_id=analysis_id, name=name)
             session.add(concept)
-            concept_map[name.lower()] = concept
+            concept_map[key] = concept
 
         for gap_data in filled_gaps:
             gap_id = str(uuid.uuid4())
